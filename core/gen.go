@@ -16,6 +16,7 @@ type SourceData struct {
 	Package    string
 }
 
+// INFO: Subject to change
 type CompileData struct {
 	SourceData
 	TokenTypes []string
@@ -27,7 +28,7 @@ func Start(c SourceData) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// TEST: remove once lexer and parser are done.
+	// INFO: Subject to change once lexer and parser are done
 	data := CompileData{
 		SourceData: c,
 		TokenTypes: []string{"braket_left", "braket_right", "equal", "ident"},

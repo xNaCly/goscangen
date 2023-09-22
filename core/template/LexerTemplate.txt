@@ -5,12 +5,13 @@ import "strings"
 type TokenType uint
 
 type Token struct {
-	Pos  int
-	Type TokenType
-	Raw  string
+    Pos  int
+    Line int
+    Type TokenType
+    Raw  string
 }
 
-var KEYWORDS = map[string]struct{}{
+var KEYWORDS = map[string]TokenType{
 {{range .KeyWords }}
         "{{.}}": {}{{end}}
 }
@@ -27,6 +28,14 @@ var LOOKUP = map[TokenType]string{
 	EOF:     "EOF",
 {{range .TokenTypes }}
         {{.}}: "{{.}}",{{end}}
+}
+
+func Debug(token []Token) {
+	fmt.Printf("| %4s | %3s | %20s | %50s |\n", "line", "pos", "type", "raw")
+	fmt.Printf("| %4s | %3s | %20s | %50s |\n", "-", "-", "-", "-")
+	for _, t := range token {
+		fmt.Printf("| %04d | %03d | %20s | %50s |\n", t.Line, t.Pos, LOOKUP[t.Type], t.Raw)
+	}
 }
 
 type Lexer struct {
@@ -46,17 +55,10 @@ func (l *Lexer) NewInput(input string) {
 	l.in = input
 	l.l = 0
 	l.inL = len(input)
-	l.cc = input[0]
-}
-
-func (l *Lexer) matchAny(ts ...rune) bool {
-	lcr := rune(l.cc)
-	for _, r := range ts {
-		if r == lcr {
-			return true
-		}
+	if l.inL == 0 {
+		return errors.New("can't accept empty input")
 	}
-	return false
+	l.cc = input[0]
 }
 
 func (l *Lexer) advance() {
