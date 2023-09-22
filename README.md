@@ -4,24 +4,63 @@ Generate source code for a tokenizer from a given configuration, designed with s
 
 ## Usage
 
-Create a file postfixed with `.scangen`:
+### 1. Create a file postfixed with `.scangen`:
 
 ```
 $ cat ini.scangen
 ignore: ;.*$
 braket_left: \[
 braket_right: \]
-ident: [\a _ \d]*$
+ident: [\a _ \d]*
 equal: =
 ```
 
-Pass the file to `scangen` via the `-i` parameter, provide an output path via `-o`
+### 2. Pass the file to `scangen` via the `-i` parameter, provide an output path via `-o` and a package with `-p`
 
 ```sh
-$ scangen -i ini.scangen -o IniLexer.go
+$ scangen -i examples/ini.scangen -o examples/lexer.go -p main
 ```
 
-Use the Lexer :)
+### 3. Call the Lexer:
+
+```go
+// examples/main.go
+package main
+
+var test = `
+; comment
+[Section]
+1key123=value_12
+`
+
+func main() {
+    lexer := Lexer{Builder: &strings.Builder{}}
+    err := lexer.NewInput(test)
+    if err != nil {
+        panic(err)
+    }
+    tok, err := lexer.Lex()
+    if err != nil {
+        panic(err)
+    }
+    Debug(tok)
+}
+```
+
+Running the above results in the following debug output:
+
+```
+$ cd examples/
+$ go run .
+| line | pos |                 type |                                                raw |
+|    - |   - |                    - |                                                  - |
+| 0002 | 001 |          braket_left |                                                    |
+| 0002 | 002 |                ident |                                            Section |
+| 0002 | 009 |         braket_right |                                                    |
+| 0003 | 001 |                ident |                                            1key123 |
+| 0003 | 008 |                equal |                                                    |
+| 0003 | 009 |                ident |                                           value_12 |
+```
 
 ## Syntax:
 
@@ -44,7 +83,7 @@ Scangen definition:
 ignore: ;.*$
 braket_left: \[
 braket_right: \]
-ident: [\a _ \d]*$
+ident: [\a _ \d]*
 equal: =
 ```
 

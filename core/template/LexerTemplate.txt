@@ -1,0 +1,74 @@
+package {{ .Package }}
+
+import "strings"
+
+type TokenType uint
+
+type Token struct {
+	Pos  int
+	Type TokenType
+	Raw  string
+}
+
+var KEYWORDS = map[string]struct{}{
+{{range .KeyWords }}
+        "{{.}}": {}{{end}}
+}
+
+const (
+	UNKNOWN TokenType = iota
+	EOF
+{{range .TokenTypes }}
+        {{.}}{{end}}
+)
+
+var LOOKUP = map[TokenType]string{
+	UNKNOWN: "UNKNOWN",
+	EOF:     "EOF",
+{{range .TokenTypes }}
+        {{.}}: "{{.}}",{{end}}
+}
+
+type Lexer struct {
+	pos     int
+	lPos    int
+	l       int
+	in      string
+	inL     int
+	cc      byte
+	Builder *strings.Builder
+}
+
+func (l *Lexer) NewInput(input string) {
+	l.Builder.Reset()
+	l.pos = 0
+	l.lPos = 0
+	l.in = input
+	l.l = 0
+	l.inL = len(input)
+	l.cc = input[0]
+}
+
+func (l *Lexer) matchAny(ts ...rune) bool {
+	lcr := rune(l.cc)
+	for _, r := range ts {
+		if r == lcr {
+			return true
+		}
+	}
+	return false
+}
+
+func (l *Lexer) advance() {
+	if l.pos+1 < l.inL {
+		l.pos++
+		l.lPos++
+		l.cc = l.in[l.pos]
+	} else {
+		l.cc = 0
+	}
+}
+
+func Lex() []Token {
+	return []Token{}
+}

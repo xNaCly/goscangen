@@ -1,5 +1,5 @@
 ignore: ;.*$
 braket_left: \[
 braket_right: \]
-ident: [\a _ \d]*$
 equal: =
+ident: [\a _ \d]*
